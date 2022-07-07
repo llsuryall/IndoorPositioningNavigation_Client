@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Indoor Positioning Client</string>
+    <!--Buttons-->
+    <string name="get_position_button">Get Position</string>
+    <string name="find_button">Find</string>
+    <!--Messages-->
+    <string name="turn_on_wifi">Please turn on WiFi</string>
+    <string name="turn_on_location">Please turn on Location</string>
+    <string name="search_successful">Search was successful!</string>
+    <string name="search_failure">Search failed!</string>
+    <string name="building_selection_failure">Failed to select the given building!</string>
+    <string name="block_selection_failure">Failed to select the given block!</string>
+    <string name="datapoints_fetch_failure">Unable to fetch datapoints!</string>
+    <string name="datapoints_fetch_successful">Successfully fetched datapoints!</string>
+    <string name="ap_error">No WiFi APs near by</string>
+    <string name="determining_location">Determining location…</string>
+    <string name="signal_strength_error">Unable to fetch signal strengths</string>
+    <string name="location_error">Unable to determine location</string>
+    <!--Instructions-->
+    <string name="empty_list">Empty</string>
+    <string name="current_position_header">Current Position -</string>
+    <string name="search_buildings">Search Buildings</string>
+    <!--Miscellaneous-->
+    <string name="building_id_field">BUILDING_ID</string>
+    <string name="block_id_field">BLOCK_ID</string>
+</resources>
