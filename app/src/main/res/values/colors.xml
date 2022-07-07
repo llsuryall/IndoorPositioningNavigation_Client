@@ -6,4 +6,5 @@
     <color name="darker_grey">#222222</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="button">#999999</color>
 </resources>

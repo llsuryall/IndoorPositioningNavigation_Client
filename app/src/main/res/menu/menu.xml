@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="Search"
+        android:icon="@drawable/ic_baseline_search_24"
+        android:id="@+id/search"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        />
+
+    <item
+        android:title="Location"
+        android:icon="@drawable/ic_baseline_add_location_24"
+        android:id="@+id/addLocation"
+        app:showAsAction="ifRoom"
+
+        />
+
+    <item
+        android:title="Location"
+        android:icon="@drawable/ic_baseline_add"
+        android:id="@+id/addDestination"
+        app:showAsAction="ifRoom"
+        />
+
+</menu>

@@ -6,22 +6,30 @@ import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import org.json.JSONException;
+//import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
+//import java.util.Iterator;
 
 public class PositioningNavigationActivity extends AppCompatActivity implements View.OnClickListener {
+    private Toolbar toolbar;
+    private Print map;
     private WifiDetails wifiDetails;
     private WifiManager wifiManager;
     PositioningNavigationViewModel positioningNavigationViewModel;
@@ -35,16 +43,20 @@ public class PositioningNavigationActivity extends AppCompatActivity implements 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.positioning_navigation_activity);
         initialize();
     }
 
     public void initialize() {
         setContentView(R.layout.positioning_navigation_activity);
+        this.toolbar =(Toolbar) findViewById(R.id.include);
+        this.map = findViewById(R.id.map);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Navigate");
         this.positioningNavigationViewModel = new ViewModelProvider(this).get(PositioningNavigationViewModel.class);
         if (getIntent().getLongExtra(getString(R.string.block_id_field), -1) >= 0) {
             this.positioningNavigationViewModel.block_id = getIntent().getLongExtra(getString(R.string.block_id_field), -1);
         }
-        findViewById(R.id.get_position_button).setOnClickListener(this);
         getIntent().removeExtra(getString(R.string.block_id_field));
         LocalSurveyDatabase localSurveyDatabase = new LocalSurveyDatabase();
         this.positioningNavigationViewModel.setLocalSurveyDatabase(localSurveyDatabase);
@@ -70,6 +82,44 @@ public class PositioningNavigationActivity extends AppCompatActivity implements 
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i("testing", "tested");
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        MenuItem.OnActionExpandListener onActionExpandListener = new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                return true;
+            }
+        };
+
+        menu.findItem(R.id.search).setOnActionExpandListener(onActionExpandListener);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setQueryHint("Search Destination...");
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.addLocation:
+                map.setLoc(1);
+                Toast.makeText(this, "Tap source location in map", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.addDestination:
+                map.setLoc(-1);
+                Toast.makeText(this, "Tap destination location in map", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
     public void onClick(View view) {
         //Check if wifi is on!
         if (!this.wifiManager.isWifiEnabled()) {
@@ -101,46 +151,45 @@ public class PositioningNavigationActivity extends AppCompatActivity implements 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), R.string.signal_strength_error, Toast.LENGTH_SHORT).show();
-            return;
+            //return;
         }
-        try {
-            LocationElement location = determineLocation(signalStrengthJSON);
-            ((TextView)findViewById(R.id.current_position)).setText(location.toString());
-        }catch (Exception e){
-            e.printStackTrace();
+/*       try {
+            //LocationElement location = determineLocation(signalStrengthJSON);
+        } catch (Exception e) {
+           e.printStackTrace();
             Toast.makeText(getApplicationContext(), R.string.location_error, Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
-    public LocationElement determineLocation(JSONObject signalStrengthJSON) throws JSONException {
-        int n=this.positioningNavigationViewModel.datapoints.length();
+/*    public LocationElement determineLocation(JSONObject signalStrengthJSON) throws JSONException {
+        int n = this.positioningNavigationViewModel.datapoints.length();
         JSONObject datapoint;
         JSONObject current_signal_strength_json;
         Iterator<String> ap_bssids;
         String cur_bssid;
-        int cost,min_cost=30000,min_cost_index=-1;
-        for(int i=0;i<n;i++){
-            datapoint=this.positioningNavigationViewModel.datapoints.getJSONObject(i);
-            current_signal_strength_json=new JSONObject(datapoint.getString("APSignalStrengthsJSON"));
-            ap_bssids=current_signal_strength_json.keys();
-            cost=0;
-            while (ap_bssids.hasNext()){
-                cur_bssid=ap_bssids.next();
-                if(signalStrengthJSON.has(cur_bssid)){
-                    cost+=Math.abs(signalStrengthJSON.getInt(cur_bssid)-current_signal_strength_json.getInt(cur_bssid));
-                }else{
-                    cost+=70;
+        int cost, min_cost = 30000, min_cost_index = -1;
+        for (int i = 0; i < n; i++) {
+            datapoint = this.positioningNavigationViewModel.datapoints.getJSONObject(i);
+            current_signal_strength_json = new JSONObject(datapoint.getString("APSignalStrengthsJSON"));
+            ap_bssids = current_signal_strength_json.keys();
+            cost = 0;
+            while (ap_bssids.hasNext()) {
+                cur_bssid = ap_bssids.next();
+                if (signalStrengthJSON.has(cur_bssid)) {
+                    cost += Math.abs(signalStrengthJSON.getInt(cur_bssid) - current_signal_strength_json.getInt(cur_bssid));
+                } else {
+                    cost += 70;
                 }
-                if(cost>min_cost){
+                if (cost > min_cost) {
                     break;
                 }
             }
-            if(cost<min_cost){
-                min_cost=cost;
-                min_cost_index=i;
+            if (cost < min_cost) {
+                min_cost = cost;
+                min_cost_index = i;
             }
         }
-        datapoint=this.positioningNavigationViewModel.datapoints.getJSONObject(min_cost_index);
-        return new LocationElement((float)datapoint.getDouble("X_Coordinate"),(float)datapoint.getDouble("Y_Coordinate"),datapoint.getInt("FloorID"));
-    }
+        datapoint = this.positioningNavigationViewModel.datapoints.getJSONObject(min_cost_index);
+        return new LocationElement((float) datapoint.getDouble("X_Coordinate"), (float) datapoint.getDouble("Y_Coordinate"), datapoint.getInt("FloorID"));
+    }*/
 }
